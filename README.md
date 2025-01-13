@@ -45,6 +45,8 @@ wget https://storage.yandexcloud.net/mle-data/ym/tracks.parquet
 wget https://storage.yandexcloud.net/mle-data/ym/catalog_names.parquet
 
 wget https://storage.yandexcloud.net/mle-data/ym/interactions.parquet
+
+wget https://storage.yandexcloud.net/recsys/data/top_popular.parquet
 ```
 
 ## Запустите Jupyter Lab
@@ -61,16 +63,30 @@ jupyter lab --ip=0.0.0.0 --no-browser
 
 git clone <ссылка-на-ваш-репозиторий>
 cd mle-priject-sprint-4-v004
-Experiment ID: 49Artifact Location: s3://s3-student-mle-20240229-5bc7b923c4/49
+Experiment ID: 49 
+Путь recommendations в S3: 's3://s3-student-mle-20240229-5bc7b923c4/49/74b90c3cbd5948d281d50fbe4a50108a/artifacts'
+
+Загрузить рекомендации:
+run = client.get_run('74b90c3cbd5948d281d50fbe4a50108a')
+artifact_uri = run.info.artifact_riu
+mlflow.artifacts.download_artifacts(artifact_uri, dst_path="../fails_recommendation")
 
 # Сервис рекомендаций
 
 Код сервиса рекомендаций находится в файле `recommendations_service.py`.
 
-<*укажите здесь необходимые шаги для запуска сервиса рекомендаций*>
+cd app - переходим в директорию с микросервисом
+uvicorn recommendation_service:app - запуск сервиса рекомендаций
+uvicorn events_service:app --port 8010  - запуск сервиса Event Store
+uvicorn features_service:app --port 8020 - запуск сервиса Feature Store
+
 
 # Инструкции для тестирования сервиса
 
 Код для тестирования сервиса находится в файле `test_service.py`.
+    для пользователя без персональных рекомендаций,
+    для пользователя с персональными рекомендациями, но без онлайн-истории,
+    для пользователя с персональными рекомендациями и онлайн-историей.
 
-<*укажите здесь необходимые шаги для тестирования сервиса рекомендаций*>
+В итоговых рекомендациях смешиваются персональные и оналйн рекомендации путем чередования.
+
